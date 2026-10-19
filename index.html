@@ -1,0 +1,2409 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Priyanka Bheemanna — UGC Creator & Visual Storyteller | Dubai, UAE</title>
+  <meta name="description" content="Official UGC Creator Portfolio of Priyanka Bheemanna. Authentic, Creative, Relatable brand storytelling based in Dubai, UAE." />
+
+  <!-- Google Fonts: Cormorant Garamond (Editorial Serif), Plus Jakarta Sans (Modern Sans), Syne (Display), Caveat (Handwritten Script) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600&family=Syne:wght@500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Three.js for Ambient Luxury 3D WebGL Background -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+  <style>
+    :root {
+      /* Palette inspired by 1000077267.png (Emerald/Sage film shadow, obsidian black halter, warm golden skin, crimson nail accent) & PDF Editorial Ivory */
+      --bg-obsidian: #0a0c0b;
+      --bg-emerald-deep: #101715;
+      --bg-card-dark: rgba(20, 26, 24, 0.72);
+      --bg-ivory: #f6f1ea;
+      --bg-alabaster: #efe7dc;
+      
+      --text-ivory: #f7f3ed;
+      --text-muted: #a5a19a;
+      --text-charcoal: #161817;
+      
+      --accent-gold: #d4af7a;
+      --accent-gold-light: #ebd5b3;
+      --accent-crimson: #b8292f; /* Subtle nod to the red manicure in reference photo */
+      --accent-sage: #6a8278;
+
+      --border-subtle: rgba(212, 175, 122, 0.18);
+      --border-dark: rgba(22, 24, 23, 0.12);
+
+      --font-serif: 'Cormorant Garamond', Georgia, serif;
+      --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-display: 'Syne', sans-serif;
+      --font-script: 'Caveat', cursive;
+
+      --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      background-color: var(--bg-obsidian);
+      color: var(--text-ivory);
+      font-family: var(--font-sans);
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      selection-background-color: var(--accent-gold);
+      selection-color: var(--bg-obsidian);
+    }
+
+    ::selection {
+      background: var(--accent-gold);
+      color: var(--bg-obsidian);
+    }
+
+    /* Subtle Film Grain Overlay */
+    .film-grain {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 9998;
+      opacity: 0.035;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    }
+
+    /* Custom Magnetic Cursor */
+    .cursor-dot,
+    .cursor-ring {
+      position: fixed;
+      top: 0;
+      left: 0;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      z-index: 9999;
+      border-radius: 50%;
+      transition: width 0.3s var(--ease-out-expo), height 0.3s var(--ease-out-expo), background-color 0.3s, border-color 0.3s;
+    }
+
+    .cursor-dot {
+      width: 6px;
+      height: 6px;
+      background-color: var(--accent-gold);
+    }
+
+    .cursor-ring {
+      width: 38px;
+      height: 38px;
+      border: 1px solid rgba(212, 175, 122, 0.45);
+      transition: transform 0.08s linear, width 0.3s var(--ease-out-expo), height 0.3s var(--ease-out-expo), background-color 0.3s;
+    }
+
+    body.cursor-hover .cursor-ring {
+      width: 64px;
+      height: 64px;
+      background-color: rgba(212, 175, 122, 0.12);
+      border-color: var(--accent-gold);
+    }
+
+    @media (max-width: 900px) {
+      .cursor-dot, .cursor-ring { display: none; }
+    }
+
+    /* WebGL Canvas */
+    #webgl-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* Layout Containers */
+    .main-wrapper {
+      position: relative;
+      z-index: 2;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1340px;
+      margin: 0 auto;
+      padding: 0 clamp(1.5rem, 4vw, 4rem);
+    }
+
+    /* Navigation */
+    header.navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 100;
+      padding: 1.4rem 0;
+      transition: background 0.4s ease, backdrop-filter 0.4s ease, padding 0.4s ease, border-bottom 0.4s ease;
+      border-bottom: 1px solid transparent;
+    }
+
+    header.navbar.scrolled {
+      background: rgba(10, 12, 11, 0.82);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      padding: 1rem 0;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .nav-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand-logo {
+      text-decoration: none;
+      color: var(--text-ivory);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .brand-logo .name {
+      font-family: var(--font-serif);
+      font-size: 1.5rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      line-height: 1;
+    }
+
+    .brand-logo .tag {
+      font-size: 0.65rem;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--accent-gold);
+      margin-top: 3px;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 2.4rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--text-ivory);
+      text-decoration: none;
+      font-size: 0.8rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      opacity: 0.8;
+      transition: opacity 0.25s, color 0.25s;
+      position: relative;
+    }
+
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 0%;
+      height: 1px;
+      background: var(--accent-gold);
+      transition: width 0.3s var(--ease-out-expo);
+    }
+
+    .nav-links a:hover {
+      opacity: 1;
+      color: var(--accent-gold);
+    }
+
+    .nav-links a:hover::after {
+      width: 100%;
+    }
+
+    .nav-cta {
+      padding: 0.65rem 1.4rem;
+      border: 1px solid var(--accent-gold);
+      border-radius: 999px;
+      color: var(--text-ivory);
+      text-decoration: none;
+      font-size: 0.75rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      transition: all 0.3s var(--ease-out-expo);
+      background: rgba(212, 175, 122, 0.08);
+    }
+
+    .nav-cta:hover {
+      background: var(--accent-gold);
+      color: var(--bg-obsidian);
+      transform: translateY(-2px);
+    }
+
+    @media (max-width: 860px) {
+      .nav-links { display: none; }
+    }
+
+    /* Hero Section */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      padding: 8.5rem 0 5rem;
+      position: relative;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: clamp(2.5rem, 5vw, 5rem);
+      align-items: center;
+    }
+
+    @media (max-width: 960px) {
+      .hero-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .eyebrow-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.65rem;
+      padding: 0.45rem 1rem;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(255, 255, 255, 0.03);
+      font-size: 0.72rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--accent-gold-light);
+      margin-bottom: 1.75rem;
+    }
+
+    .eyebrow-badge .pulse-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--accent-crimson);
+      box-shadow: 0 0 10px var(--accent-crimson);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.35); opacity: 0.65; }
+    }
+
+    .hero-title {
+      font-family: var(--font-serif);
+      font-size: clamp(3.4rem, 7vw, 6.4rem);
+      font-weight: 500;
+      line-height: 0.96;
+      letter-spacing: -0.02em;
+      margin-bottom: 1.5rem;
+    }
+
+    .hero-title .italic-gold {
+      font-style: italic;
+      color: var(--accent-gold);
+      font-weight: 400;
+    }
+
+    .hero-pillars {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.85rem;
+      font-family: var(--font-display);
+      font-size: 0.78rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 1.8rem;
+    }
+
+    .hero-pillars span.divider {
+      color: var(--accent-gold);
+    }
+
+    .hero-sub {
+      font-size: clamp(1.05rem, 1.4vw, 1.25rem);
+      color: rgba(247, 243, 237, 0.82);
+      max-width: 540px;
+      line-height: 1.65;
+      font-weight: 300;
+      margin-bottom: 2.5rem;
+    }
+
+    .hero-sub strong {
+      color: var(--text-ivory);
+      font-weight: 500;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 1.2rem;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 1rem 2rem;
+      background: var(--accent-gold);
+      color: var(--bg-obsidian);
+      font-weight: 600;
+      font-size: 0.82rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      text-decoration: none;
+      border-radius: 999px;
+      transition: all 0.35s var(--ease-out-expo);
+      border: 1px solid var(--accent-gold);
+      cursor: pointer;
+    }
+
+    .btn-primary:hover {
+      background: transparent;
+      color: var(--accent-gold);
+      transform: translateY(-3px);
+      box-shadow: 0 14px 30px rgba(212, 175, 122, 0.18);
+    }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 1rem 1.75rem;
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text-ivory);
+      font-size: 0.82rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      text-decoration: none;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      transition: all 0.35s var(--ease-out-expo);
+      cursor: pointer;
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--text-ivory);
+      background: rgba(255, 255, 255, 0.09);
+      transform: translateY(-3px);
+    }
+
+    /* 3D Interactive Portrait Card */
+    .portrait-stage {
+      perspective: 1200px;
+      display: flex;
+      justify-content: center;
+      position: relative;
+    }
+
+    .portrait-card {
+      width: 100%;
+      max-width: 440px;
+      aspect-ratio: 3 / 4.1;
+      border-radius: 24px;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.15s ease-out;
+      background: linear-gradient(145deg, #16221e, #0c100f);
+      border: 1px solid rgba(212, 175, 122, 0.32);
+      box-shadow: 0 30px 70px rgba(0, 0, 0, 0.65), 0 0 40px rgba(106, 130, 120, 0.15);
+      overflow: hidden;
+    }
+
+    .portrait-img-wrapper {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .portrait-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 20%;
+      transition: transform 0.7s var(--ease-out-expo), filter 0.5s ease;
+      filter: contrast(1.03) saturate(1.04);
+    }
+
+    .portrait-card:hover .portrait-img {
+      transform: scale(1.04);
+    }
+
+    /* Glare effect for 3D tilt */
+    .portrait-glare {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.18), transparent 60%);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+      mix-blend-mode: overlay;
+    }
+
+    .portrait-card:hover .portrait-glare {
+      opacity: 1;
+    }
+
+    /* Floating glass badges on portrait */
+    .floating-badge {
+      position: absolute;
+      background: rgba(12, 16, 15, 0.78);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(212, 175, 122, 0.3);
+      padding: 0.85rem 1.2rem;
+      border-radius: 16px;
+      z-index: 5;
+      transform: translateZ(40px);
+      box-shadow: 0 15px 35px rgba(0,0,0,0.45);
+    }
+
+    .floating-badge.top-left {
+      top: 1.5rem;
+      left: -1.5rem;
+    }
+
+    .floating-badge.bottom-right {
+      bottom: 1.8rem;
+      right: -1.5rem;
+    }
+
+    @media (max-width: 600px) {
+      .floating-badge.top-left { left: 0.75rem; top: 0.75rem; }
+      .floating-badge.bottom-right { right: 0.75rem; bottom: 0.75rem; }
+    }
+
+    .badge-label {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      color: var(--accent-gold);
+      display: block;
+    }
+
+    .badge-value {
+      font-family: var(--font-serif);
+      font-size: 1.25rem;
+      color: var(--text-ivory);
+      font-style: italic;
+    }
+
+    /* Photo Customize Button inside Portrait */
+    .photo-switcher-btn {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      z-index: 10;
+      background: rgba(10, 12, 11, 0.72);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(212, 175, 122, 0.35);
+      color: var(--text-ivory);
+      font-size: 0.68rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 0.45rem 0.85rem;
+      border-radius: 999px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: all 0.25s ease;
+    }
+
+    .photo-switcher-btn:hover {
+      background: var(--accent-gold);
+      color: var(--bg-obsidian);
+    }
+
+    /* Infinite Editorial Marquee */
+    .marquee-strip {
+      border-top: 1px solid var(--border-subtle);
+      border-bottom: 1px solid var(--border-subtle);
+      background: rgba(16, 23, 21, 0.6);
+      padding: 1.25rem 0;
+      overflow: hidden;
+      display: flex;
+      white-space: nowrap;
+      position: relative;
+      z-index: 2;
+    }
+
+    .marquee-track {
+      display: flex;
+      align-items: center;
+      animation: scrollMarquee 28s linear infinite;
+    }
+
+    .marquee-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 2rem;
+      padding-right: 2rem;
+      font-family: var(--font-serif);
+      font-size: 1.45rem;
+      font-style: italic;
+      color: var(--accent-gold-light);
+    }
+
+    .marquee-item strong {
+      font-family: var(--font-display);
+      font-style: normal;
+      font-size: 0.82rem;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      color: var(--text-ivory);
+    }
+
+    @keyframes scrollMarquee {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    /* Section Headers & Numbering (Matching PDF 01 - 06 chapters) */
+    section {
+      padding: clamp(5rem, 9vw, 8.5rem) 0;
+      position: relative;
+    }
+
+    .section-header {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: clamp(3rem, 5vw, 4.5rem);
+    }
+
+    .chapter-meta {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .chapter-num {
+      font-family: var(--font-serif);
+      font-size: 1.5rem;
+      font-style: italic;
+      color: var(--accent-gold);
+    }
+
+    .chapter-line {
+      height: 1px;
+      width: 48px;
+      background: var(--accent-gold);
+      opacity: 0.5;
+    }
+
+    .chapter-label {
+      font-size: 0.75rem;
+      letter-spacing: 0.26em;
+      text-transform: uppercase;
+      color: var(--accent-gold);
+    }
+
+    .section-title {
+      font-family: var(--font-serif);
+      font-size: clamp(2.6rem, 5vw, 4.5rem);
+      font-weight: 500;
+      line-height: 1.04;
+      letter-spacing: -0.01em;
+    }
+
+    /* Section 01: About Me (Warm Ivory Editorial Contrast Section) */
+    .section-ivory {
+      background-color: var(--bg-ivory);
+      color: var(--text-charcoal);
+    }
+
+    .section-ivory .chapter-num,
+    .section-ivory .chapter-label {
+      color: #8c6635;
+    }
+
+    .section-ivory .chapter-line {
+      background: #8c6635;
+    }
+
+    .about-grid {
+      display: grid;
+      grid-template-columns: 0.9fr 1.1fr;
+      gap: clamp(2.5rem, 6vw, 5.5rem);
+      align-items: center;
+    }
+
+    @media (max-width: 920px) {
+      .about-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .about-visualFrame {
+      position: relative;
+      padding: 1.25rem;
+      border: 1px solid var(--border-dark);
+      border-radius: 24px;
+      background: var(--bg-alabaster);
+    }
+
+    .about-visualFrame img {
+      width: 100%;
+      aspect-ratio: 4 / 5;
+      object-fit: cover;
+      border-radius: 16px;
+      display: block;
+    }
+
+    .script-quote-overlay {
+      font-family: var(--font-script);
+      font-size: 2.1rem;
+      color: var(--text-charcoal);
+      margin-top: 1rem;
+      text-align: center;
+    }
+
+    .about-copy h3 {
+      font-family: var(--font-serif);
+      font-size: clamp(2rem, 3.3vw, 3rem);
+      font-weight: 500;
+      line-height: 1.18;
+      margin-bottom: 1.6rem;
+    }
+
+    .about-copy p {
+      font-size: 1.08rem;
+      line-height: 1.8;
+      color: #3a3d3b;
+      margin-bottom: 1.4rem;
+    }
+
+    .about-signature {
+      margin-top: 2rem;
+      padding-top: 1.8rem;
+      border-top: 1px solid var(--border-dark);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .signature-script {
+      font-family: var(--font-script);
+      font-size: 2.4rem;
+      color: #8c6635;
+    }
+
+    .location-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1.1rem;
+      border-radius: 999px;
+      background: var(--text-charcoal);
+      color: var(--bg-ivory);
+      font-size: 0.72rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+
+    /* Section 02: 6 Content Niches (3D Interactive Cards) */
+    .niches-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 1.75rem;
+    }
+
+    @media (max-width: 420px) {
+      .niches-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .niche-card {
+      background: var(--bg-card-dark);
+      border: 1px solid var(--border-subtle);
+      border-radius: 20px;
+      padding: 2.2rem;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.35s var(--ease-out-expo), border-color 0.35s ease, box-shadow 0.35s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 270px;
+      backdrop-filter: blur(12px);
+    }
+
+    .niche-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(500px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(212, 175, 122, 0.13), transparent 40%);
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+    }
+
+    .niche-card:hover::before {
+      opacity: 1;
+    }
+
+    .niche-card:hover {
+      transform: translateY(-6px);
+      border-color: var(--accent-gold);
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.45);
+    }
+
+    .niche-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.8rem;
+    }
+
+    .niche-index {
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-size: 1.35rem;
+      color: var(--accent-gold);
+    }
+
+    .niche-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent-gold-light);
+      font-size: 1.1rem;
+    }
+
+    .niche-title {
+      font-family: var(--font-serif);
+      font-size: 2.1rem;
+      font-weight: 500;
+      margin-bottom: 0.65rem;
+      color: var(--text-ivory);
+    }
+
+    .niche-desc {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+      margin-bottom: 1.4rem;
+    }
+
+    .niche-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+    }
+
+    .niche-tag {
+      font-size: 0.68rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 0.3rem 0.7rem;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: var(--accent-gold-light);
+    }
+
+    .section-tagline-banner {
+      margin-top: 3rem;
+      text-align: center;
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-size: clamp(1.6rem, 2.5vw, 2.3rem);
+      color: var(--accent-gold-light);
+    }
+
+    /* Section 03: Collaboration Services */
+    .services-wrapper {
+      display: grid;
+      grid-template-columns: 0.85fr 1.15fr;
+      gap: clamp(2rem, 5vw, 4.5rem);
+      align-items: start;
+    }
+
+    @media (max-width: 900px) {
+      .services-wrapper {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .services-intro-box {
+      background: linear-gradient(160deg, rgba(212, 175, 122, 0.14), rgba(16, 23, 21, 0.7));
+      border: 1px solid var(--border-subtle);
+      padding: 2.5rem;
+      border-radius: 24px;
+      position: sticky;
+      top: 6.5rem;
+    }
+
+    .services-intro-box h3 {
+      font-family: var(--font-serif);
+      font-size: 2.2rem;
+      font-weight: 500;
+      margin-bottom: 1rem;
+    }
+
+    .services-intro-box p {
+      color: var(--text-muted);
+      line-height: 1.7;
+      margin-bottom: 1.8rem;
+    }
+
+    .service-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .service-item {
+      background: var(--bg-card-dark);
+      border: 1px solid var(--border-subtle);
+      border-radius: 18px;
+      padding: 1.65rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5rem;
+      transition: all 0.3s var(--ease-out-expo);
+      cursor: pointer;
+    }
+
+    .service-item:hover {
+      border-color: var(--accent-gold);
+      transform: translateX(8px);
+      background: rgba(212, 175, 122, 0.07);
+    }
+
+    .service-item-left {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+    }
+
+    .check-circle {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: rgba(212, 175, 122, 0.15);
+      border: 1px solid var(--accent-gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent-gold);
+      flex-shrink: 0;
+    }
+
+    .service-name {
+      font-family: var(--font-serif);
+      font-size: 1.65rem;
+      font-weight: 500;
+      color: var(--text-ivory);
+    }
+
+    .service-sub {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      margin-top: 0.2rem;
+    }
+
+    .service-badge {
+      font-size: 0.68rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      padding: 0.35rem 0.85rem;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      color: var(--accent-gold-light);
+      white-space: nowrap;
+    }
+
+    /* Section 04: Sample Content Ideas (Filterable Editorial Showcase) */
+    .filter-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.65rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .filter-btn {
+      background: transparent;
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      padding: 0.6rem 1.3rem;
+      border-radius: 999px;
+      font-size: 0.76rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+
+    .filter-btn.active,
+    .filter-btn:hover {
+      background: var(--accent-gold);
+      color: var(--bg-obsidian);
+      border-color: var(--accent-gold);
+      font-weight: 600;
+    }
+
+    .showcase-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 2rem;
+    }
+
+    @media (max-width: 420px) {
+      .showcase-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .showcase-card {
+      border-radius: 22px;
+      overflow: hidden;
+      background: var(--bg-card-dark);
+      border: 1px solid var(--border-subtle);
+      position: relative;
+      group: showcase;
+      transition: transform 0.4s var(--ease-out-expo), border-color 0.4s ease;
+    }
+
+    .showcase-card:hover {
+      transform: translateY(-8px);
+      border-color: var(--accent-gold);
+    }
+
+    .showcase-media {
+      position: relative;
+      aspect-ratio: 4 / 4.6;
+      overflow: hidden;
+      background: #141a18;
+    }
+
+    .showcase-media img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.65s var(--ease-out-expo);
+    }
+
+    .showcase-card:hover .showcase-media img {
+      transform: scale(1.06);
+    }
+
+    .showcase-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(10, 12, 11, 0.92) 8%, rgba(10, 12, 11, 0.2) 55%, transparent 100%);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 1.8rem;
+    }
+
+    .format-pill {
+      position: absolute;
+      top: 1.2rem;
+      left: 1.2rem;
+      background: rgba(10, 12, 11, 0.75);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(212, 175, 122, 0.3);
+      color: var(--accent-gold-light);
+      padding: 0.35rem 0.85rem;
+      border-radius: 999px;
+      font-size: 0.68rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    .reel-play-trigger {
+      position: absolute;
+      top: 1.2rem;
+      right: 1.2rem;
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: rgba(212, 175, 122, 0.9);
+      color: var(--bg-obsidian);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+
+    .showcase-card:hover .reel-play-trigger {
+      transform: scale(1.12);
+    }
+
+    .showcase-title {
+      font-family: var(--font-serif);
+      font-size: 1.85rem;
+      font-weight: 500;
+      color: var(--text-ivory);
+      margin-bottom: 0.35rem;
+    }
+
+    .showcase-hook {
+      font-size: 0.9rem;
+      color: rgba(247, 243, 237, 0.78);
+      line-height: 1.5;
+      margin-bottom: 0.9rem;
+    }
+
+    .showcase-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 0.85rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      font-size: 0.75rem;
+      color: var(--accent-gold);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    /* Section 05: Why Work With Me */
+    .pillars-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .pillar-box {
+      background: rgba(255, 255, 255, 0.65);
+      border: 1px solid var(--border-dark);
+      border-radius: 20px;
+      padding: 2.2rem 1.8rem;
+      transition: transform 0.35s var(--ease-out-expo), box-shadow 0.35s ease;
+    }
+
+    .pillar-box:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 20px 40px rgba(22, 24, 23, 0.08);
+    }
+
+    .pillar-stars {
+      color: #8c6635;
+      font-size: 1.1rem;
+      letter-spacing: 0.2em;
+      margin-bottom: 1.2rem;
+    }
+
+    .pillar-box h4 {
+      font-family: var(--font-serif);
+      font-size: 1.75rem;
+      font-weight: 600;
+      margin-bottom: 0.65rem;
+      color: var(--text-charcoal);
+    }
+
+    .pillar-box p {
+      font-size: 0.96rem;
+      line-height: 1.65;
+      color: #424644;
+    }
+
+    /* Section 06: Interactive Campaign Brief Builder & Contact */
+    .contact-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.1fr;
+      gap: clamp(2.5rem, 5vw, 5rem);
+      align-items: start;
+    }
+
+    @media (max-width: 940px) {
+      .contact-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .contact-direct-card {
+      background: var(--bg-card-dark);
+      border: 1px solid var(--border-subtle);
+      border-radius: 24px;
+      padding: 2.6rem;
+    }
+
+    .contact-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.25rem 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      gap: 1rem;
+    }
+
+    .contact-item:last-of-type {
+      border-bottom: none;
+    }
+
+    .contact-label {
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--accent-gold);
+      margin-bottom: 0.25rem;
+    }
+
+    .contact-val {
+      font-family: var(--font-serif);
+      font-size: 1.45rem;
+      color: var(--text-ivory);
+      text-decoration: none;
+      word-break: break-all;
+    }
+
+    .copy-pill {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-ivory);
+      padding: 0.45rem 0.9rem;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.25s;
+      flex-shrink: 0;
+    }
+
+    .copy-pill:hover {
+      background: var(--accent-gold);
+      color: var(--bg-obsidian);
+    }
+
+    /* Interactive Brief Generator */
+    .brief-builder {
+      background: var(--bg-card-dark);
+      border: 1px solid var(--border-subtle);
+      border-radius: 24px;
+      padding: 2.6rem;
+    }
+
+    .brief-builder h3 {
+      font-family: var(--font-serif);
+      font-size: 2rem;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+    }
+
+    .brief-builder > p {
+      color: var(--text-muted);
+      font-size: 0.92rem;
+      margin-bottom: 1.8rem;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.74rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent-gold-light);
+      margin-bottom: 0.65rem;
+    }
+
+    .chip-selector {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.55rem;
+    }
+
+    .chip-option {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: var(--text-ivory);
+      padding: 0.55rem 1rem;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .chip-option.selected {
+      background: var(--accent-gold);
+      color: var(--bg-obsidian);
+      border-color: var(--accent-gold);
+      font-weight: 600;
+    }
+
+    .form-input, .form-textarea {
+      width: 100%;
+      background: rgba(10, 12, 11, 0.65);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 12px;
+      padding: 0.9rem 1.1rem;
+      color: var(--text-ivory);
+      font-family: var(--font-sans);
+      font-size: 0.95rem;
+      transition: border-color 0.25s;
+    }
+
+    .form-input:focus, .form-textarea:focus {
+      outline: none;
+      border-color: var(--accent-gold);
+    }
+
+    /* Footer */
+    footer.site-footer {
+      border-top: 1px solid var(--border-subtle);
+      padding: 5rem 0 3rem;
+      text-align: center;
+      background: #070908;
+    }
+
+    .footer-quote {
+      font-family: var(--font-serif);
+      font-size: clamp(2.2rem, 4.5vw, 4rem);
+      font-weight: 400;
+      font-style: italic;
+      color: var(--text-ivory);
+      margin-bottom: 1rem;
+    }
+
+    .footer-thankyou {
+      font-family: var(--font-script);
+      font-size: 2.8rem;
+      color: var(--accent-gold);
+      margin-bottom: 2rem;
+    }
+
+    .footer-bottom {
+      margin-top: 3rem;
+      padding-top: 2rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    /* Modal for Storyboard Inspection */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(6, 8, 7, 0.85);
+      backdrop-filter: blur(12px);
+      z-index: 9000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.35s ease;
+    }
+
+    .modal-backdrop.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-box {
+      background: #121715;
+      border: 1px solid var(--accent-gold);
+      border-radius: 24px;
+      max-width: 620px;
+      width: 100%;
+      padding: 2.5rem;
+      position: relative;
+      transform: translateY(20px);
+      transition: transform 0.35s var(--ease-out-expo);
+    }
+
+    .modal-backdrop.open .modal-box {
+      transform: translateY(0);
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 1.25rem;
+      right: 1.25rem;
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-ivory);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+
+    /* Scroll Reveal Utility */
+    .reveal {
+      opacity: 0;
+      transform: translateY(32px);
+      transition: opacity 0.85s var(--ease-out-expo), transform 0.85s var(--ease-out-expo);
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Subtle Analog Film Grain -->
+  <div class="film-grain"></div>
+
+  <!-- Custom Magnetic Cursor -->
+  <div class="cursor-dot" id="cursor-dot"></div>
+  <div class="cursor-ring" id="cursor-ring"></div>
+
+  <!-- Hidden File Input so user can load 1000077267.png or any custom portrait at any time -->
+  <input type="file" id="portrait-file-input" accept="image/*" style="display: none;" />
+
+  <!-- Three.js Ambient Luxury WebGL Background -->
+  <canvas id="webgl-canvas"></canvas>
+
+  <div class="main-wrapper">
+    <!-- Top Editorial Navigation -->
+    <header class="navbar" id="navbar">
+      <div class="container nav-inner">
+        <a href="#" class="brand-logo">
+          <span class="name">PRIYANKA BHEEMANNA</span>
+          <span class="tag">UGC Creator • Dubai, UAE</span>
+        </a>
+
+        <ul class="nav-links">
+          <li><a href="#about">01. About</a></li>
+          <li><a href="#niches">02. Niches</a></li>
+          <li><a href="#services">03. Services</a></li>
+          <li><a href="#examples">04. Content</a></li>
+          <li><a href="#why-me">05. Why Me</a></li>
+        </ul>
+
+        <a href="#collaborate" class="nav-cta">Let's Collaborate</a>
+      </div>
+    </header>
+
+    <!-- HERO SECTION -->
+    <section class="hero" id="top">
+      <div class="container hero-grid">
+        <!-- Left Column: Editorial Typography -->
+        <div class="hero-content reveal">
+          <div class="eyebrow-badge">
+            <span class="pulse-dot"></span>
+            <span>DUBAI | UAE • AVAILABLE FOR BRAND CAMPAIGNS</span>
+          </div>
+
+          <h1 class="hero-title">
+            Priyanka<br />
+            <span class="italic-gold">Bheemanna</span>
+          </h1>
+
+          <div class="hero-pillars">
+            <span>AUTHENTIC</span>
+            <span class="divider">✦</span>
+            <span>CREATIVE</span>
+            <span class="divider">✦</span>
+            <span>RELATABLE</span>
+          </div>
+
+          <p class="hero-sub">
+            <strong>“Real moments. Real stories.”</strong><br />
+            Crafting high-converting, natural editorial User-Generated Content across beauty, skincare, fashion, food, travel, and modern Dubai lifestyle.
+          </p>
+
+          <div class="hero-actions">
+            <a href="#collaborate" class="btn-primary">
+              <span>Commission a Campaign</span>
+              <span>→</span>
+            </a>
+            <a href="#examples" class="btn-secondary">
+              <span>Explore Content Ideas</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- Right Column: 3D Interactive Reference Portrait Card -->
+        <div class="portrait-stage reveal">
+          <div class="portrait-card" id="tilt-portrait">
+            <button class="photo-switcher-btn" id="change-photo-btn" title="Click or drag & drop 1000077267.png to set portrait">
+              <span>📷 Load Reference Photo</span>
+            </button>
+
+            <div class="portrait-img-wrapper">
+              <!-- Automatically loads 1000077267.png if in same folder, with seamless high-fashion fallback -->
+              <img
+                id="hero-portrait-img"
+                class="portrait-img"
+                src="1000077267.png"
+                alt="Priyanka Bheemanna — UGC Creator Dubai"
+                onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=1000&q=85';"
+              />
+              <div class="portrait-glare" id="portrait-glare"></div>
+            </div>
+
+            <div class="floating-badge top-left">
+              <span class="badge-label">Based In</span>
+              <span class="badge-value">Dubai, UAE</span>
+            </div>
+
+            <div class="floating-badge bottom-right">
+              <span class="badge-label">Creator Ethos</span>
+              <span class="badge-value">“Small moments, big stories.”</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- INFINITE LUXURY MARQUEE -->
+    <div class="marquee-strip">
+      <div class="marquee-track">
+        <div class="marquee-item">
+          <strong>UGC CREATOR PORTFOLIO</strong> <span>✦</span>
+          <span>Real moments. Real stories.</span> <span>✦</span>
+          <strong>DUBAI | UAE</strong> <span>✦</span>
+          <span>Beauty • Skincare • Fashion • Lifestyle • Food • Travel</span> <span>✦</span>
+          <strong>@_priyas.dairy</strong> <span>✦</span>
+        </div>
+        <div class="marquee-item">
+          <strong>UGC CREATOR PORTFOLIO</strong> <span>✦</span>
+          <span>Real moments. Real stories.</span> <span>✦</span>
+          <strong>DUBAI | UAE</strong> <span>✦</span>
+          <span>Beauty • Skincare • Fashion • Lifestyle • Food • Travel</span> <span>✦</span>
+          <strong>@_priyas.dairy</strong> <span>✦</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 01. ABOUT ME SECTION (Warm Editorial Ivory Contrast) -->
+    <section class="section-ivory" id="about">
+      <div class="container">
+        <div class="section-header reveal">
+          <div class="chapter-meta">
+            <span class="chapter-num">01</span>
+            <span class="chapter-line"></span>
+            <span class="chapter-label">About Me</span>
+          </div>
+          <h2 class="section-title">The Face & Voice Behind the Lens</h2>
+        </div>
+
+        <div class="about-grid">
+          <div class="about-visualFrame reveal">
+            <img
+              id="about-portrait-img"
+              src="1000077267.png"
+              alt="Priyanka Bheemanna Portrait"
+              onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=900&q=80';"
+            />
+            <div class="script-quote-overlay">“Different vibes, same me” ♡</div>
+          </div>
+
+          <div class="about-copy reveal">
+            <h3>
+              Hi, I'm <em>Priyanka Bheemanna</em> — a passionate and creative UGC creator based in Dubai, UAE.
+            </h3>
+            <p>
+              I love creating authentic and relatable content that brings brands closer to their audience. In an era of overly polished ads, audiences crave human connection—someone they trust sharing real experiences in real light.
+            </p>
+            <p>
+              As a fresher in the creator world, I'm eager to explore new opportunities, learn, and grow. I believe in the power of <strong>real stories, genuine expressions, and beautiful visuals</strong> that make a measurable difference for your brand.
+            </p>
+
+            <div class="about-signature">
+              <div class="signature-script">Let's create something meaningful together!</div>
+              <div class="location-pill">
+                <span>📍</span>
+                <span>DUBAI | UAE</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 02. MY NICHES SECTION -->
+    <section id="niches">
+      <div class="container">
+        <div class="section-header reveal">
+          <div class="chapter-meta">
+            <span class="chapter-num">02</span>
+            <span class="chapter-line"></span>
+            <span class="chapter-label">My Niches</span>
+          </div>
+          <h2 class="section-title">Content Niches & Verticals</h2>
+        </div>
+
+        <div class="niches-grid">
+          <!-- Niche 1: Beauty -->
+          <div class="niche-card reveal">
+            <div>
+              <div class="niche-top">
+                <span class="niche-index">01 / 06</span>
+                <div class="niche-icon">✨</div>
+              </div>
+              <h3 class="niche-title">Beauty</h3>
+              <p class="niche-desc">
+                Makeup, skincare, self-care, and step-by-step beauty routines filmed with flattering natural textures and close-up application shots.
+              </p>
+            </div>
+            <div class="niche-tags">
+              <span class="niche-tag">Makeup</span>
+              <span class="niche-tag">Self-Care</span>
+              <span class="niche-tag">GRWM</span>
+            </div>
+          </div>
+
+          <!-- Niche 2: Skincare -->
+          <div class="niche-card reveal">
+            <div>
+              <div class="niche-top">
+                <span class="niche-index">02 / 06</span>
+                <div class="niche-icon">💧</div>
+              </div>
+              <h3 class="niche-title">Skincare</h3>
+              <p class="niche-desc">
+                Skincare routines, tactile product demos, serum & cream texture shots, and honest reviews that build immediate consumer trust.
+              </p>
+            </div>
+            <div class="niche-tags">
+              <span class="niche-tag">Product Demos</span>
+              <span class="niche-tag">Honest Reviews</span>
+              <span class="niche-tag">AM/PM Routines</span>
+            </div>
+          </div>
+
+          <!-- Niche 3: Fashion -->
+          <div class="niche-card reveal">
+            <div>
+              <div class="niche-top">
+                <span class="niche-index">03 / 06</span>
+                <div class="niche-icon">🖤</div>
+              </div>
+              <h3 class="niche-title">Fashion</h3>
+              <p class="niche-desc">
+                Outfits, styling transitions, curated fashion finds, and editorial lookbooks tailored for modern modesty and contemporary street style.
+              </p>
+            </div>
+            <div class="niche-tags">
+              <span class="niche-tag">Outfits</span>
+              <span class="niche-tag">Styling</span>
+              <span class="niche-tag">Lookbooks</span>
+            </div>
+          </div>
+
+          <!-- Niche 4: Lifestyle -->
+          <div class="niche-card reveal">
+            <div>
+              <div class="niche-top">
+                <span class="niche-index">04 / 06</span>
+                <div class="niche-icon">🌿</div>
+              </div>
+              <h3 class="niche-title">Lifestyle</h3>
+              <p class="niche-desc">
+                Daily life in Dubai, mindful productivity, wellness rituals, and self-growth storytelling that seamlessly integrates everyday products.
+              </p>
+            </div>
+            <div class="niche-tags">
+              <span class="niche-tag">Daily Life</span>
+              <span class="niche-tag">Wellness</span>
+              <span class="niche-tag">Self-Growth</span>
+            </div>
+          </div>
+
+          <!-- Niche 5: Food -->
+          <div class="niche-card reveal">
+            <div>
+              <div class="niche-top">
+                <span class="niche-index">05 / 06</span>
+                <div class="niche-icon">☕</div>
+              </div>
+              <h3 class="niche-title">Food & Cafes</h3>
+              <p class="niche-desc">
+                Artisanal restaurants, specialty Dubai cafes, home recipes, and sensory food experiences that capture ambiance and flavor.
+              </p>
+            </div>
+            <div class="niche-tags">
+              <span class="niche-tag">Specialty Cafes</span>
+              <span class="niche-tag">Restaurants</span>
+              <span class="niche-tag">Tasting POV</span>
+            </div>
+          </div>
+
+          <!-- Niche 6: Travel -->
+          <div class="niche-card reveal">
+            <div>
+              <div class="niche-top">
+                <span class="niche-index">06 / 06</span>
+                <div class="niche-icon">🌆</div>
+              </div>
+              <h3 class="niche-title">Travel</h3>
+              <p class="niche-desc">
+                Iconic and hidden Dubai spots, immersive travel vlogs, staycations, and exploring new places with cinematic movement.
+              </p>
+            </div>
+            <div class="niche-tags">
+              <span class="niche-tag">Dubai Spots</span>
+              <span class="niche-tag">Travel Vlogs</span>
+              <span class="niche-tag">Hidden Gems</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-tagline-banner reveal">
+          “Different vibes, same me.”
+        </div>
+      </div>
+    </section>
+
+    <!-- 03. COLLABORATION SERVICES -->
+    <section id="services">
+      <div class="container">
+        <div class="section-header reveal">
+          <div class="chapter-meta">
+            <span class="chapter-num">03</span>
+            <span class="chapter-line"></span>
+            <span class="chapter-label">Services</span>
+          </div>
+          <h2 class="section-title">Collaboration Services</h2>
+        </div>
+
+        <div class="services-wrapper">
+          <div class="services-intro-box reveal">
+            <h3>Tailored for Modern Social Channels</h3>
+            <p>
+              I create authentic, high-quality content that showcases your brand in the best way. Flexible, open to ideas, and always excited to create content that fits your brand's vision.
+            </p>
+            <a href="#collaborate" class="btn-primary" style="width: 100%; justify-content: center;">
+              Request Custom Rate Card
+            </a>
+          </div>
+
+          <div class="service-list">
+            <div class="service-item reveal">
+              <div class="service-item-left">
+                <div class="check-circle">✓</div>
+                <div>
+                  <div class="service-name">Product Reviews & Unboxing</div>
+                  <div class="service-sub">First-impression ASMR, tactile packaging reveal & honest key-benefit breakdown.</div>
+                </div>
+              </div>
+              <span class="service-badge">9:16 Vertical</span>
+            </div>
+
+            <div class="service-item reveal">
+              <div class="service-item-left">
+                <div class="check-circle">✓</div>
+                <div>
+                  <div class="service-name">Instagram Reels / Short Videos</div>
+                  <div class="service-sub">Scroll-stopping 15–60s short-form video engineered for organic reach or paid ad hooks.</div>
+                </div>
+              </div>
+              <span class="service-badge">High Retention</span>
+            </div>
+
+            <div class="service-item reveal">
+              <div class="service-item-left">
+                <div class="check-circle">✓</div>
+                <div>
+                  <div class="service-name">Story Content</div>
+                  <div class="service-sub">Multi-frame conversational story sequences with native link/CTA placement.</div>
+                </div>
+              </div>
+              <span class="service-badge">Direct Response</span>
+            </div>
+
+            <div class="service-item reveal">
+              <div class="service-item-left">
+                <div class="check-circle">✓</div>
+                <div>
+                  <div class="service-name">Product Photography</div>
+                  <div class="service-sub">Editorial flatlays, sunlit texture shots & in-hand lifestyle stills for your feed.</div>
+                </div>
+              </div>
+              <span class="service-badge">On Request</span>
+            </div>
+
+            <div class="service-item reveal">
+              <div class="service-item-left">
+                <div class="check-circle">✓</div>
+                <div>
+                  <div class="service-name">Lifestyle & Aesthetic Content</div>
+                  <div class="service-sub">Aspirational visual storytelling blending your product into daily Dubai routines.</div>
+                </div>
+              </div>
+              <span class="service-badge">Aesthetic</span>
+            </div>
+
+            <div class="service-item reveal">
+              <div class="service-item-left">
+                <div class="check-circle">✓</div>
+                <div>
+                  <div class="service-name">Brand Events / Campaigns</div>
+                  <div class="service-sub">On-location coverage across Dubai pop-ups, launches, and hospitality experiences.</div>
+                </div>
+              </div>
+              <span class="service-badge">On Request</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 04. SAMPLE CONTENT IDEAS (Interactive Filter + Storyboard Modal) -->
+    <section id="examples">
+      <div class="container">
+        <div class="section-header reveal">
+          <div class="chapter-meta">
+            <span class="chapter-num">04</span>
+            <span class="chapter-line"></span>
+            <span class="chapter-label">Content Examples</span>
+          </div>
+          <h2 class="section-title">Sample Content Ideas</h2>
+        </div>
+
+        <div class="filter-tabs reveal">
+          <button class="filter-btn active" data-filter="all">All Concepts (06)</button>
+          <button class="filter-btn" data-filter="beauty">Beauty & Skincare</button>
+          <button class="filter-btn" data-filter="fashion">Outfit & Fashion</button>
+          <button class="filter-btn" data-filter="lifestyle">Dubai, Food & Vlogs</button>
+        </div>
+
+        <div class="showcase-grid" id="showcase-grid">
+          <!-- Card 1: Product Reviews -->
+          <div class="showcase-card reveal" data-category="beauty" data-title="Product Reviews" data-hook="“3 reasons this vanity staple hasn't left my routine...”" data-script="0:00–0:03 Close-up sunlit bottle shimmer & pump dispense. 0:03–0:12 Voiceover explaining lightweight feel on skin in Dubai humidity. 0:12–0:20 Natural glowing skin check + direct CTA.">
+            <div class="showcase-media">
+              <img src="https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=800&q=80" alt="Product Reviews" />
+              <span class="format-pill">9:16 Reel • Review</span>
+              <button class="reel-play-trigger" aria-label="View Storyboard">▶</button>
+              <div class="showcase-overlay">
+                <h3 class="showcase-title">Product Reviews</h3>
+                <p class="showcase-hook">Tactile vanity aesthetic, authentic voiceover & real results.</p>
+                <div class="showcase-meta">
+                  <span>Beauty & Cosmetics</span>
+                  <span>View Concept →</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 2: Skincare Routine -->
+          <div class="showcase-card reveal" data-category="beauty" data-title="Skincare Routine" data-hook="“Botanical hydration ritual for glass skin...”" data-script="0:00–0:03 Dropper serum macro shot with botanical leaf shadows. 0:03–0:10 Application on cheekbones with ASMR tapping sounds. 0:10–0:18 Before/After dewy finish in natural window light.">
+            <div class="showcase-media">
+              <img src="https://images.unsplash.com/photo-1608248597359-0e6d526a6c18?auto=format&fit=crop&w=800&q=80" alt="Skincare Routine" />
+              <span class="format-pill">9:16 Reel • Demo</span>
+              <button class="reel-play-trigger" aria-label="View Storyboard">▶</button>
+              <div class="showcase-overlay">
+                <h3 class="showcase-title">Skincare Routine</h3>
+                <p class="showcase-hook">Sunlit dropper serums, botanical shadows & dewy skin prep.</p>
+                <div class="showcase-meta">
+                  <span>Skincare & Self-Care</span>
+                  <span>View Concept →</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 3: Outfit Inspo -->
+          <div class="showcase-card reveal" data-category="fashion" data-title="Outfit Inspo" data-hook="“Effortless neutral styling for a Dubai afternoon...”" data-script="0:00–0:03 Quick snap transition from base layers to styled knit & denim. 0:03–0:10 Accessory detail shots (handbag, jewelry, manicure). 0:10–0:15 Full-length mirror & outdoor walk clip.">
+            <div class="showcase-media">
+              <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=800&q=80" alt="Outfit Inspo" />
+              <span class="format-pill">9:16 Lookbook</span>
+              <button class="reel-play-trigger" aria-label="View Storyboard">▶</button>
+              <div class="showcase-overlay">
+                <h3 class="showcase-title">Outfit Inspo</h3>
+                <p class="showcase-hook">Chic neutral textures, accessory details & wearable styling.</p>
+                <div class="showcase-meta">
+                  <span>Fashion & Apparel</span>
+                  <span>View Concept →</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 4: Food & Cafe Experiences -->
+          <div class="showcase-card reveal" data-category="lifestyle" data-title="Food & Cafe Experiences" data-hook="“Come with me to the coziest specialty coffee spot in Dubai...”" data-script="0:00–0:03 Pouring rosetta latte art in warm morning light. 0:03–0:09 Interior aesthetic pan & pastry close-up. 0:09–0:15 Authentic first-sip reaction & location tag.">
+            <div class="showcase-media">
+              <img src="https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=800&q=80" alt="Food & Cafe Experiences" />
+              <span class="format-pill">9:16 POV Vlog</span>
+              <button class="reel-play-trigger" aria-label="View Storyboard">▶</button>
+              <div class="showcase-overlay">
+                <h3 class="showcase-title">Food & Cafe Experiences</h3>
+                <p class="showcase-hook">Artisanal latte art, warm table flatlays & hospitality tasting.</p>
+                <div class="showcase-meta">
+                  <span>Hospitality & Dining</span>
+                  <span>View Concept →</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 5: Dubai Diaries -->
+          <div class="showcase-card reveal" data-category="lifestyle" data-title="Dubai Diaries" data-hook="“Golden hour views & city moments in Downtown Dubai...”" data-script="0:00–0:04 Cinematic skyline reveal of Burj Khalifa at sunset over the water. 0:04–0:12 Walking POV showcasing outfit/product in an iconic UAE setting. 0:12–0:18 Evening lights montage.">
+            <div class="showcase-media">
+              <img src="https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=800&q=80" alt="Dubai Diaries" />
+              <span class="format-pill">9:16 Travel Reel</span>
+              <button class="reel-play-trigger" aria-label="View Storyboard">▶</button>
+              <div class="showcase-overlay">
+                <h3 class="showcase-title">Dubai Diaries</h3>
+                <p class="showcase-hook">Golden-hour Burj Khalifa skylines, hidden gems & city strolls.</p>
+                <div class="showcase-meta">
+                  <span>Travel & UAE Spots</span>
+                  <span>View Concept →</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 6: Lifestyle Vlogs -->
+          <div class="showcase-card reveal" data-category="lifestyle" data-title="Lifestyle Vlogs" data-hook="“Slow morning journaling, fresh blooms & mindful reset...”" data-script="0:00–0:04 Overhead shot of spiral notebook, coffee mug, and pink roses. 0:04–0:11 Writing daily intentions & integrating wellness/lifestyle brand naturally. 0:11–0:16 Calm voiceover wrap-up.">
+            <div class="showcase-media">
+              <img src="https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=800&q=80" alt="Lifestyle Vlogs" />
+              <span class="format-pill">9:16 Aesthetic Story</span>
+              <button class="reel-play-trigger" aria-label="View Storyboard">▶</button>
+              <div class="showcase-overlay">
+                <h3 class="showcase-title">Lifestyle Vlogs</h3>
+                <p class="showcase-hook">Morning coffee, journaling rituals & relatable daily moments.</p>
+                <div class="showcase-meta">
+                  <span>Wellness & Lifestyle</span>
+                  <span>View Concept →</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-tagline-banner reveal">
+          “Real content. Real you.”
+        </div>
+      </div>
+    </section>
+
+    <!-- 05. WHY WORK WITH ME (Warm Ivory Section) -->
+    <section class="section-ivory" id="why-me">
+      <div class="container">
+        <div class="section-header reveal">
+          <div class="chapter-meta">
+            <span class="chapter-num">05</span>
+            <span class="chapter-line"></span>
+            <span class="chapter-label">Why Work With Me</span>
+          </div>
+          <h2 class="section-title">Why Brands Partner With Priyanka</h2>
+        </div>
+
+        <div class="pillars-grid">
+          <div class="pillar-box reveal">
+            <div class="pillar-stars">✦ ✦ ✦</div>
+            <h4>Authentic & Genuine</h4>
+            <p>I create real, relatable content that feels natural—never overly scripted—so your audience connects immediately.</p>
+          </div>
+
+          <div class="pillar-box reveal">
+            <div class="pillar-stars">✦ ✦ ✦</div>
+            <h4>Creative & Detail-Oriented</h4>
+            <p>I care about the little things that make a big difference: clean lighting, aesthetic framing, and thoughtful transitions.</p>
+          </div>
+
+          <div class="pillar-box reveal">
+            <div class="pillar-stars">✦ ✦ ✦</div>
+            <h4>Open & Professional</h4>
+            <p>I'm easy to work with, flexible with creative briefs, communicative on timelines, and always willing to learn.</p>
+          </div>
+
+          <div class="pillar-box reveal">
+            <div class="pillar-stars">✦ ✦ ✦</div>
+            <h4>Eager to Grow</h4>
+            <p>As a fresher, I bring fresh ideas, contagious enthusiasm, and a genuine passion for content creation to every shoot.</p>
+          </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 3.5rem;" class="reveal">
+          <span class="signature-script" style="font-size: 2.8rem;">Let's make your brand stand out! ♡</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 06. GET IN TOUCH & INTERACTIVE CAMPAIGN BRIEF BUILDER -->
+    <section id="collaborate">
+      <div class="container">
+        <div class="section-header reveal">
+          <div class="chapter-meta">
+            <span class="chapter-num">06</span>
+            <span class="chapter-line"></span>
+            <span class="chapter-label">Get In Touch</span>
+          </div>
+          <h2 class="section-title">Let's Collaborate</h2>
+        </div>
+
+        <div class="contact-grid">
+          <!-- Left: Direct Verified Contact Channels from PDF -->
+          <div class="contact-direct-card reveal">
+            <p style="font-size: 0.78rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--accent-gold); margin-bottom: 0.5rem;">
+              I WOULD LOVE TO HEAR FROM YOU!
+            </p>
+            <h3 style="font-family: var(--font-serif); font-size: 2.2rem; font-weight: 500; margin-bottom: 1.5rem;">
+              Direct Creator Desk
+            </h3>
+
+            <div class="contact-item">
+              <div>
+                <div class="contact-label">Email Address</div>
+                <a href="mailto:priyabhimanna@gmail.com" class="contact-val">priyabhimanna@gmail.com</a>
+              </div>
+              <button class="copy-pill" data-copy="priyabhimanna@gmail.com">Copy</button>
+            </div>
+
+            <div class="contact-item">
+              <div>
+                <div class="contact-label">Phone / WhatsApp (UAE)</div>
+                <a href="tel:0502326225" class="contact-val">0502326225</a>
+              </div>
+              <button class="copy-pill" data-copy="0502326225">Copy</button>
+            </div>
+
+            <div class="contact-item">
+              <div>
+                <div class="contact-label">Instagram Handle</div>
+                <a href="https://instagram.com/_priyas.dairy" target="_blank" rel="noopener" class="contact-val">@_priyas.dairy</a>
+              </div>
+              <button class="copy-pill" data-copy="@_priyas.dairy">Copy</button>
+            </div>
+
+            <div class="contact-item">
+              <div>
+                <div class="contact-label">Location</div>
+                <span class="contact-val">DUBAI | UAE</span>
+              </div>
+              <span class="service-badge">GMT+4</span>
+            </div>
+          </div>
+
+          <!-- Right: Interactive Campaign Brief Builder -->
+          <div class="brief-builder reveal">
+            <h3>Interactive Campaign Brief Builder</h3>
+            <p>Select your deliverables below to generate an instant collaboration inquiry via Email or WhatsApp.</p>
+
+            <div class="form-group">
+              <label class="form-label">1. Select Content Niche</label>
+              <div class="chip-selector" id="niche-chips">
+                <button type="button" class="chip-option selected" data-val="Beauty">Beauty</button>
+                <button type="button" class="chip-option" data-val="Skincare">Skincare</button>
+                <button type="button" class="chip-option" data-val="Fashion">Fashion</button>
+                <button type="button" class="chip-option" data-val="Lifestyle">Lifestyle</button>
+                <button type="button" class="chip-option" data-val="Food & Cafe">Food & Cafe</button>
+                <button type="button" class="chip-option" data-val="Travel / Dubai">Travel / Dubai</button>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">2. Select Deliverable Service</label>
+              <div class="chip-selector" id="service-chips">
+                <button type="button" class="chip-option selected" data-val="Instagram Reels / Short Videos">Instagram Reels</button>
+                <button type="button" class="chip-option" data-val="Product Reviews & Unboxing">Unboxing & Review</button>
+                <button type="button" class="chip-option" data-val="Story Content">Story Sequence</button>
+                <button type="button" class="chip-option" data-val="Product Photography">Product Photography</button>
+                <button type="button" class="chip-option" data-val="Brand Events / Campaigns">Dubai Brand Event</button>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="brand-name">3. Your Brand / Agency Name</label>
+              <input type="text" id="brand-name" class="form-input" placeholder="e.g. Glow Botanics Dubai" />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="brand-notes">4. Campaign Vision or Timeline</label>
+              <textarea id="brand-notes" rows="3" class="form-textarea" placeholder="Tell me about your product and ideal launch date..."></textarea>
+            </div>
+
+            <div style="display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 1.8rem;">
+              <button type="button" id="send-email-brief" class="btn-primary" style="flex: 1; justify-content: center;">
+                <span>Send Brief via Email</span>
+                <span>✉</span>
+              </button>
+              <button type="button" id="send-wa-brief" class="btn-secondary" style="flex: 1; justify-content: center;">
+                <span>Send via WhatsApp</span>
+                <span>💬</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="site-footer">
+      <div class="container">
+        <p class="footer-quote">“Small moments create big stories.”</p>
+        <div class="footer-thankyou">Thank You ♡</div>
+        <p style="font-size: 0.78rem; letter-spacing: 0.24em; text-transform: uppercase; color: var(--text-muted);">
+          FOR TAKING THE TIME TO EXPLORE MY PORTFOLIO
+        </p>
+
+        <div class="footer-bottom">
+          <span>PRIYANKA BHEEMANNA — UGC CREATOR</span>
+          <span>@_priyas.dairy • priyabhimanna@gmail.com</span>
+          <span>DUBAI | UAE</span>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <!-- STORYBOARD MODAL -->
+  <div class="modal-backdrop" id="storyboard-modal">
+    <div class="modal-box">
+      <button class="modal-close" id="modal-close-btn">✕</button>
+      <span class="chapter-label" style="display:block; margin-bottom:0.4rem;">UGC Shot List & Concept</span>
+      <h3 id="modal-title" style="font-family: var(--font-serif); font-size: 2.2rem; margin-bottom: 0.6rem;">Product Reviews</h3>
+      <p id="modal-hook" style="font-style: italic; color: var(--accent-gold-light); margin-bottom: 1.4rem;"></p>
+      <div style="background: rgba(255,255,255,0.04); border: 1px solid var(--border-subtle); padding: 1.25rem; border-radius: 14px; line-height: 1.7; font-size: 0.94rem; color: var(--text-ivory);" id="modal-script"></div>
+      <div style="margin-top: 1.6rem; display: flex; justify-content: flex-end;">
+        <a href="#collaborate" class="btn-primary" id="modal-book-btn">Book This Concept →</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- APPLICATION SCRIPTS -->
+  <script>
+    /* ==========================================================================
+       1. THREE.JS LUXURY GOLDEN SILK & BOKEH PARTICLE BACKGROUND
+       ========================================================================== */
+    (function initThreeBackground() {
+      const canvas = document.getElementById('webgl-canvas');
+      if (!canvas || typeof THREE === 'undefined') return;
+
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100);
+      camera.position.z = 18;
+
+      const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+      // Create warm gold & sage bokeh particles
+      const particleCount = 160;
+      const geometry = new THREE.BufferGeometry();
+      const positions = new Float32Array(particleCount * 3);
+      const scales = new Float32Array(particleCount);
+
+      for (let i = 0; i < particleCount; i++) {
+        positions[i * 3] = (Math.random() - 0.5) * 42;
+        positions[i * 3 + 1] = (Math.random() - 0.5) * 30;
+        positions[i * 3 + 2] = (Math.random() - 0.5) * 16;
+        scales[i] = Math.random();
+      }
+
+      geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+      geometry.setAttribute('aScale', new THREE.BufferAttribute(scales, 1));
+
+      // Soft circular particle texture generated on canvas
+      const spriteCanvas = document.createElement('canvas');
+      spriteCanvas.width = 64;
+      spriteCanvas.height = 64;
+      const ctx = spriteCanvas.getContext('2d');
+      const grad = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+      grad.addColorStop(0, 'rgba(212, 175, 122, 0.9)');
+      grad.addColorStop(0.5, 'rgba(212, 175, 122, 0.25)');
+      grad.addColorStop(1, 'rgba(10, 12, 11, 0)');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, 64, 64);
+      const particleTexture = new THREE.CanvasTexture(spriteCanvas);
+
+      const material = new THREE.PointsMaterial({
+        size: 0.65,
+        map: particleTexture,
+        transparent: true,
+        opacity: 0.55,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending
+      });
+
+      const particles = new THREE.Points(geometry, material);
+      scene.add(particles);
+
+      // Subtle wireframe editorial torus knot in background
+      const torusGeo = new THREE.TorusKnotGeometry(5.5, 1.2, 110, 16);
+      const torusMat = new THREE.MeshBasicMaterial({
+        color: 0xd4af7a,
+        wireframe: true,
+        transparent: true,
+        opacity: 0.035
+      });
+      const torusKnot = new THREE.Mesh(torusGeo, torusMat);
+      torusKnot.position.set(7, -1, -6);
+      scene.add(torusKnot);
+
+      let mouseX = 0;
+      let mouseY = 0;
+      window.addEventListener('mousemove', (e) => {
+        mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+        mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+      });
+
+      const clock = new THREE.Clock();
+      function animate() {
+        requestAnimationFrame(animate);
+        const elapsed = clock.getElapsedTime();
+
+        particles.rotation.y = elapsed * 0.03 + mouseX * 0.12;
+        particles.rotation.x = -mouseY * 0.08;
+
+        torusKnot.rotation.x = elapsed * 0.08;
+        torusKnot.rotation.y = elapsed * 0.11;
+
+        renderer.render(scene, camera);
+      }
+      animate();
+
+      window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      });
+    })();
+
+    /* ==========================================================================
+       2. CUSTOM MAGNETIC CURSOR & 3D PORTRAIT TILT
+       ========================================================================== */
+    const cursorDot = document.getElementById('cursor-dot');
+    const cursorRing = document.getElementById('cursor-ring');
+
+    window.addEventListener('mousemove', (e) => {
+      if (cursorDot && cursorRing) {
+        cursorDot.style.left = `${e.clientX}px`;
+        cursorDot.style.top = `${e.clientY}px`;
+        cursorRing.style.left = `${e.clientX}px`;
+        cursorRing.style.top = `${e.clientY}px`;
+      }
+    });
+
+    document.querySelectorAll('a, button, .niche-card, .showcase-card, .service-item').forEach((el) => {
+      el.addEventListener('mouseenter', () => document.body.classList.add('cursor-hover'));
+      el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-hover'));
+    });
+
+    // 3D Tilt on Hero Portrait Card
+    const tiltCard = document.getElementById('tilt-portrait');
+    const glare = document.getElementById('portrait-glare');
+    if (tiltCard) {
+      tiltCard.addEventListener('mousemove', (e) => {
+        const rect = tiltCard.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        const rotateX = ((y - centerY) / centerY) * -8;
+        const rotateY = ((x - centerX) / centerX) * 8;
+        tiltCard.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+        if (glare) {
+          glare.style.background = `radial-gradient(circle at ${(x / rect.width) * 100}% ${(y / rect.height) * 100}%, rgba(255,255,255,0.22), transparent 60%)`;
+        }
+      });
+
+      tiltCard.addEventListener('mouseleave', () => {
+        tiltCard.style.transform = 'rotateX(0deg) rotateY(0deg)';
+      });
+    }
+
+    // Spotlight hover coordinates on Niche Cards
+    document.querySelectorAll('.niche-card').forEach((card) => {
+      card.addEventListener('mousemove', (e) => {
+        const rect = card.getBoundingClientRect();
+        card.style.setProperty('--mouse-x', `${e.clientX - rect.left}px`);
+        card.style.setProperty('--mouse-y', `${e.clientY - rect.top}px`);
+      });
+    });
+
+    /* ==========================================================================
+       3. REFERENCE PHOTO (1000077267.png) LOADER + DRAG & DROP + LOCALSTORAGE
+       ========================================================================== */
+    const fileInput = document.getElementById('portrait-file-input');
+    const changePhotoBtn = document.getElementById('change-photo-btn');
+    const heroImg = document.getElementById('hero-portrait-img');
+    const aboutImg = document.getElementById('about-portrait-img');
+
+    // Restore saved custom photo if previously uploaded in browser
+    const savedPortrait = localStorage.getItem('priyanka_ugc_portrait');
+    if (savedPortrait) {
+      heroImg.src = savedPortrait;
+      aboutImg.src = savedPortrait;
+    }
+
+    function handleImageFile(file) {
+      if (!file || !file.type.startsWith('image/')) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const dataUrl = ev.target.result;
+        heroImg.src = dataUrl;
+        aboutImg.src = dataUrl;
+        try {
+          localStorage.setItem('priyanka_ugc_portrait', dataUrl);
+        } catch (err) {
+          // Ignore storage quota errors for very large raw images
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+
+    if (changePhotoBtn && fileInput) {
+      changePhotoBtn.addEventListener('click', () => fileInput.click());
+      fileInput.addEventListener('change', (e) => handleImageFile(e.target.files[0]));
+    }
+
+    // Drag & Drop support anywhere on the portrait card
+    if (tiltCard) {
+      tiltCard.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        tiltCard.style.borderColor = '#d4af7a';
+      });
+      tiltCard.addEventListener('drop', (e) => {
+        e.preventDefault();
+        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+          handleImageFile(e.dataTransfer.files[0]);
+        }
+      });
+    }
+
+    /* ==========================================================================
+       4. CONTENT EXAMPLES FILTER & STORYBOARD MODAL
+       ========================================================================== */
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    const showcaseCards = document.querySelectorAll('.showcase-card');
+
+    filterBtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        filterBtns.forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+        const filter = btn.dataset.filter;
+
+        showcaseCards.forEach((card) => {
+          if (filter === 'all' || card.dataset.category === filter) {
+            card.style.display = 'block';
+          } else {
+            card.style.display = 'none';
+          }
+        });
+      });
+    });
+
+    const modal = document.getElementById('storyboard-modal');
+    const modalTitle = document.getElementById('modal-title');
+    const modalHook = document.getElementById('modal-hook');
+    const modalScript = document.getElementById('modal-script');
+    const modalClose = document.getElementById('modal-close-btn');
+    const modalBook = document.getElementById('modal-book-btn');
+
+    showcaseCards.forEach((card) => {
+      card.addEventListener('click', () => {
+        modalTitle.textContent = card.dataset.title;
+        modalHook.textContent = card.dataset.hook;
+        modalScript.textContent = card.dataset.script;
+        modal.classList.add('open');
+      });
+    });
+
+    if (modalClose) {
+      modalClose.addEventListener('click', () => modal.classList.remove('open'));
+    }
+    if (modalBook) {
+      modalBook.addEventListener('click', () => modal.classList.remove('open'));
+    }
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') modal.classList.remove('open');
+    });
+
+    /* ==========================================================================
+       5. COPY BUTTONS & INTERACTIVE CAMPAIGN BRIEF GENERATOR
+       ========================================================================== */
+    document.querySelectorAll('.copy-pill').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const text = btn.dataset.copy;
+        navigator.clipboard.writeText(text);
+        const orig = btn.textContent;
+        btn.textContent = 'Copied ✓';
+        setTimeout(() => (btn.textContent = orig), 1800);
+      });
+    });
+
+    function setupChips(containerId) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+      container.querySelectorAll('.chip-option').forEach((chip) => {
+        chip.addEventListener('click', () => {
+          container.querySelectorAll('.chip-option').forEach((c) => c.classList.remove('selected'));
+          chip.classList.add('selected');
+        });
+      });
+    }
+    setupChips('niche-chips');
+    setupChips('service-chips');
+
+    function buildBriefMessage() {
+      const niche = document.querySelector('#niche-chips .chip-option.selected')?.dataset.val || 'Beauty';
+      const service = document.querySelector('#service-chips .chip-option.selected')?.dataset.val || 'Instagram Reels';
+      const brand = document.getElementById('brand-name')?.value.trim() || 'Our Brand';
+      const notes = document.getElementById('brand-notes')?.value.trim() || 'Looking forward to discussing a UGC collaboration!';
+
+      return {
+        subject: `UGC Collaboration Inquiry: ${brand} x Priyanka Bheemanna (${niche})`,
+        body: `Hi Priyanka,\n\nWe loved exploring your UGC portfolio!\n\n• Brand: ${brand}\n• Content Niche: ${niche}\n• Deliverable: ${service}\n• Campaign Details: ${notes}\n\nLet's create something meaningful together!`
+      };
+    }
+
+    document.getElementById('send-email-brief')?.addEventListener('click', () => {
+      const { subject, body } = buildBriefMessage();
+      window.location.href = `mailto:priyabhimanna@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    });
+
+    document.getElementById('send-wa-brief')?.addEventListener('click', () => {
+      const { body } = buildBriefMessage();
+      // UAE country code +971 with 0502326225 -> 971502326225
+      window.open(`https://wa.me/971502326225?text=${encodeURIComponent(body)}`, '_blank');
+    });
+
+    /* ==========================================================================
+       6. NAVBAR SCROLL & INTERSECTION OBSERVER REVEALS
+       ========================================================================== */
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 50) {
+        navbar.classList.add('scrolled');
+      } else {
+        navbar.classList.remove('scrolled');
+      }
+    });
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+          }
+        });
+      },
+      { threshold: 0.12 }
+    );
+
+    document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
+  </script>
+</body>
+</html>
